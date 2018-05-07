@@ -40,3 +40,14 @@ TLSPSKIdentity=$(hostname)
 EOF
 systemctl enable zabbix-agent
 systemctl start zabbix-agent
+
+#swap
+if [ $(cat /proc/swaps | wc -l) -eq 1 -a $(grep swap /etc/fstab | grep -v '^#' | wc -l) -eq 0 ]
+then
+    dd if=/dev/zero of=/root/swap bs=256 count=8388616
+    mkswap /root/swap
+    echo "/root/swap swap swap defaults    0  0" >> /etc/fstab
+    echo "vm.swappiness=60" >> /etc/sysctl.conf
+    sysctl -p
+    swapon /root/swap
+fi
